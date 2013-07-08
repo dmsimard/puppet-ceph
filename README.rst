@@ -63,6 +63,8 @@ Features
 
   • Working OSD ✓
 
+* RadowGW ✓
+
 TODO
 ====
 

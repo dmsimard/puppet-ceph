@@ -29,7 +29,8 @@ class ceph::conf (
   $mon_data        = '/var/lib/ceph/mon/mon.$id',
   $osd_data        = '/var/lib/ceph/osd/osd.$id',
   $osd_journal     = undef,
-  $mds_data        = '/var/lib/ceph/mds/mds.$id'
+  $mds_data        = '/var/lib/ceph/mds/mds.$id',
+  $rgw_data        = '/var/lib/ceph/radosgw'
 ) {
 
   include 'ceph::package'
