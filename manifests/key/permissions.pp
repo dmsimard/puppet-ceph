@@ -15,6 +15,7 @@ define ceph::key::permissions (
     exec { "ceph-add-key-${name}-to-cluster":
         command => "ceph auth add client.${name} --in-filename=${keyring_path}",
         unless  => "ceph auth get-key client.${name}"
+        require => [Package['ceph'],File["${keyring_path}"]]
     }
     # We
     # if $mon_permissons == '*'{
@@ -39,7 +40,7 @@ define ceph::key::permissions (
     exec { "ceph-set-permisson-key-${name}":
         unless  => "ceph auth list|grep -A4 client.${name}|egrep -o 'allow ${mon_permissons}|allow ${osd_permissons}|allow ${mds_permissons}'",
         command => "ceph auth caps client.${name} ${mon_caps} ${osd_caps} ${$mds_caps}",
-        require => Package['ceph'],
+        require => [Package['ceph'],File["${keyring_path}"]]
       }
     notify {"Executing ceph-set-permisson-key-${name}":}
 }
