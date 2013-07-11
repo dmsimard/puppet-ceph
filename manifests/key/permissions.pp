@@ -8,10 +8,12 @@ define ceph::key::permissions (
 
     # This ensures that the key is injected to the Cluster.
     exec { "ceph-add-key-${name}-to-cluster":
-        command => "ceph auth add client.${name} --in-filename=${keyring_path}",
         unless  => "ceph auth get-key client.${name}",
+        command => "ceph auth add client.${name} --in-file=${keyring_path}",
         require => Package['ceph'],
     }
+    notify {"Executing ceph-add-key-${name}-to-cluster":}
+    notify {"keyring_path is ${keyring_path}":}
 
     $mon_caps = "mon 'allow ${mon_permissons}'"
     $osd_caps = "osd 'allow ${osd_permissons}'"
@@ -21,7 +23,7 @@ define ceph::key::permissions (
     # We're able to set the permission for a key only once.
     # Some notes to the unless:
     # It will call the `ceph auth list`, add some newline and then
-    # grep the right key out.
+    # grep the right key out.`
     # The newlines are necessary so existing permissions don't interfere
     # with the grep output. Adding enough newlines allow a more accurate
     # out and validating each key.
