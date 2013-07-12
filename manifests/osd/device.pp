@@ -62,8 +62,10 @@ define ceph::osd::device (
     }
   }
   elsif $partition_table == false {
-    notify {"Value of partition_table in l64:${partition_table}": }
+
     $dev_partition = $full_dev_path
+    $devname_partition = regsubst($dev_partition, '.*/', '')
+
     exec { "mkfs_${devname}":
       command => "mkfs.xfs -f -d agcount=${::processorcount} -l size=1024m -n size=64k ${dev_partition}",
       unless  => "xfs_admin -l ${name}",
