@@ -57,7 +57,7 @@ class ceph::rgw (
   exec { 'ceph-add-key':
     command => "ceph -k /etc/ceph/keyring \
 auth get-or-create client.rgw -i /var/lib/ceph/tmp/keyring.rgw",
-    require => Package['ceph'],
+    require => Exec['ceph-rgw-keyring'] ,
   }
 
   file { '/var/www/s3gw.fcgi':
