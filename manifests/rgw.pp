@@ -56,13 +56,13 @@ class ceph::rgw (
   }
 
   exec { 'ceph-rgw-keyring':
-    command => "ceph-authtool /var/lib/ceph/tmp/keyring.rgw \
+    command => "ceph-authtool /var/lib/ceph/radosgw/keyring.rgw \
 --create-keyring \
 --gen-key \
---name client.rgw \
+--name client.radosgw.gateway \
 --cap osd 'allow rwx' \
 --cap mon 'allow r'",
-    creates => "/var/lib/ceph/tmp/keyring.rgw",
+    creates => "/var/lib/ceph/radosgw/keyring.rgw",
     require => Package['ceph', 'ceph-common'],
   }
 
