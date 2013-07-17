@@ -25,6 +25,18 @@ class ceph::rgw (
     require => Package['libapache2-mod-fastcgi'],
   }
 
+   exec { 'a2 dis default':
+     command => 'a2dissite 000-default',
+     path    => ['/usr/bin', '/usr/sbin'],
+     require => Package['apache2'],
+   }
+  
+   exec { 'a2 en rgw.conf':
+     command => 'a2ensite rgw.conf',
+     path    => ['/usr/bin', '/usr/sbin'],
+     require => file['/etc/apache2/sites-available/rgw.conf'] 
+   }
+
   Package['ceph'] -> Ceph::Key <<| title == 'admin' |>>
 
   file { $::ceph::rgw::rgw_data:
