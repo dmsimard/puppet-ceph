@@ -30,7 +30,8 @@ class ceph::conf (
   $osd_data        = '/var/lib/ceph/osd/osd.$id',
   $osd_journal     = undef,
   $mds_data        = '/var/lib/ceph/mds/mds.$id',
-  $rgw_data        = '/var/lib/ceph/radosgw'
+  $rgw_data        = '/var/lib/ceph/radosgw',
+  $keyring_path     = undef,
 ) {
 
   include 'ceph::package'
@@ -47,10 +48,11 @@ class ceph::conf (
     $osd_journal_real = "${osd_data}/journal"
   }
 
+  # Need 'r' for services like libvirt/glance/cinder to access to the cluster.
   concat { '/etc/ceph/ceph.conf':
     owner   => 'root',
     group   => 0,
-    mode    => $mode,
+    mode    => '0664',
     require => Package['ceph'],
   }
 
