@@ -83,10 +83,13 @@ exec /usr/bin/radosgw -c /etc/ceph/ceph.conf -n client.radosgw.gateway'
   }
 
   service { 'radosgw':
-    ensure   => running,
-    provider => $::ceph::params::service_provider,
-    start    => '/etc/init.d/radosgw start',
-    stop     => '/etc/init.d/radosgw stop',
+    ensure    => running,
+    provider  => $::ceph::params::service_provider,
+    start     => '/etc/init.d/radosgw start',
+    stop      => '/etc/init.d/radosgw stop',
+    hasstatus => false,
+    pattern   => 'radosgw',
+
   }
 
 }
