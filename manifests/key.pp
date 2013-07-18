@@ -18,7 +18,6 @@ define ceph::key (
       ensure  => file,
       owner   => $user,
       group   => $group,
-      #require => Exec["ceph-key-${name}"]
     }
   } else {
     exec { "ceph-key-${name}":
@@ -27,16 +26,11 @@ define ceph::key (
       require => Package['ceph'],
     }
 
-    @@file { "${keyring_path}":
+    file { "${keyring_path}":
       ensure  => file,
       owner   => $user,
       group   => $group,
-      tag     => "key-${name}",
       source  => "${keyring_path}"
-      #require => Exec["ceph-key-${name}"]
     }
   }
-
-
-
 }
