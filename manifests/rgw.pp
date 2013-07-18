@@ -56,19 +56,22 @@ class ceph::rgw (
   }
 
   exec { 'ceph-rgw-keyring':
-    command => "ceph-authtool /var/lib/ceph/tmp/keyring.rgw \
+    command => "ceph-authtool /var/lib/ceph/radosgw/keyring.rgw \
 --create-keyring \
 --gen-key \
---name client.rgw \
+--name client.radosgw.gateway \
 --cap osd 'allow rwx' \
 --cap mon 'allow r'",
-    creates => "/var/lib/ceph/tmp/keyring.rgw",
+    creates => "/var/lib/ceph/radosgw/keyring.rgw",
     require => Package['ceph', 'ceph-common'],
   }
 
   exec { 'ceph-add-key':
     command => "ceph -k /etc/ceph/keyring \
-auth get-or-create client.rgw -i /var/lib/ceph/tmp/keyring.rgw",
+auth add client.radosgw.gateway -i /var/lib/ceph/radosgw/keyring.rgw \
+mon 'allow r' \
+osd 'allow rwx'
+",
     require => Exec['ceph-rgw-keyring'] ,
   }
 
@@ -80,10 +83,13 @@ exec /usr/bin/radosgw -c /etc/ceph/ceph.conf -n client.radosgw.gateway'
   }
 
   service { 'radosgw':
-    ensure   => running,
-    provider => $::ceph::params::service_provider,
-    start    => '/etc/init.d/radosgw start',
-    stop     => '/etc/init.d/radosgw stop',
+    ensure    => running,
+    provider  => $::ceph::params::service_provider,
+    start     => '/etc/init.d/radosgw start',
+    stop      => '/etc/init.d/radosgw stop',
+    hasstatus => false,
+    pattern   => 'radosgw',
+
   }
 
 }
