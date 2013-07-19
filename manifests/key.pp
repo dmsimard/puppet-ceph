@@ -7,7 +7,7 @@ define ceph::key (
   $group        = 'root',
 ) {
 
-  if ! $secret_file {
+  if $secret_file == false {
     exec { "ceph-key-${name}":
       command => "ceph-authtool ${keyring_path} --create-keyring --name='client.${name}' --add-key='${secret}'",
       creates => $keyring_path,
@@ -18,19 +18,21 @@ define ceph::key (
       ensure  => file,
       owner   => $user,
       group   => $group,
+      require => Exec["ceph-key-${name}"]
     }
   } else {
-    exec { "ceph-key-${name}":
-      command => "ceph-authtool ${keyring_path} --create-keyring --name='client.${name}' --add-key=$(cat ${secret})",
-      creates => $keyring_path,
-      require => Package['ceph'],
-    }
+      exec { "ceph-key-${name}":
+        command => "ceph-authtool ${keyring_path} --create-keyring --name='client.${name}' --add-key=$(cat ${secret})",
+        creates => $keyring_path,
+        require => [Package['ceph'],File["${secret}"],],
+      }
 
-    file { "${keyring_path}":
-      ensure  => file,
-      owner   => $user,
-      group   => $group,
-      source  => "${keyring_path}"
+      file { "${keyring_path}":
+        ensure  => file,
+        owner   => $user,
+        group   => $group,
+        source  => $keyring_path,
+        require => Exec["ceph-key-${name}"]
+      }
     }
-  }
 }
