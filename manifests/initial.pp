@@ -9,13 +9,13 @@ class ceph::initial (
         ensure => file,
         owner  => 'root',
         group  => 'root',
-        source => $::ceph_admin,
+        source => $ceph_admin,
     }
     file { '/root/monitor_secret.key':
         ensure => file,
         owner  => 'root',
         group  => 'root',
-        source => $::monitor_secret,
+        source => $monitor_secret,
     }
     file { "${path_to_temp_kerying}":
         ensure => file,
