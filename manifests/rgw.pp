@@ -37,15 +37,24 @@ class ceph::rgw (
    exec { 'a2-en-rgw.conf':
      command => 'a2ensite rgw.conf',
      path    => ['/usr/bin', '/usr/sbin'],
-     require => file['/etc/apache2/sites-available/rgw.conf'],
+     require => File['/etc/apache2/sites-available/rgw.conf'],
      creates => '/etc/apache2/sites-enabled/rgw.conf',
    }
+
+
+   file_line { "apache_listen": 
+      line => "Listen ${::network_eth2_1}:80", 
+      path => "/etc/apache2/ports.conf", 
+      match => "Listen 80",
+      ensure => present 
+  }
 
   exec { 'a2 reload':
      command => '/etc/init.d/apache2 reload',
      path    => ['/usr/bin', '/usr/sbin', '/bin'],
      require => [ Exec['a2-en-rgw.conf'],
-                  Exec['a2-dis-default']],
+                  Exec['a2-dis-default'],
+                  File_line[apache_listen],],
    }
 
 
