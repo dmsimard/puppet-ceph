@@ -62,7 +62,7 @@ define ceph::mon (
 
   exec { 'ceph-mon-mkfs':
     command => "ceph-mon --mkfs -i ${name} \
---keyring /var/lib/ceph/tmp/keyring.mon.${name}",
+--keyring $temp_kerying",
     creates => "${mon_data_real}/keyring",
     require => [Package['ceph'], Concat['/etc/ceph/ceph.conf']],
   }
