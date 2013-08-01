@@ -7,6 +7,9 @@
 <% if @keyring_path -%>
   keyring = <%= @keyring_path %>
 <% end -%>
+<% if @pool_default_size -%>
+  osd pool default size = <%= @pool_default_size %>
+<% end -%>
 
   fsid = <%= @fsid %>
 
