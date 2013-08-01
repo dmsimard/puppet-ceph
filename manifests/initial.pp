@@ -22,12 +22,14 @@ class ceph::initial (
     }
 
     exec { 'ceph-key-mon':
-      command => "ceph-authtool ${path_to_temp_kerying} --name='mon.' --add-key='$(cat /root/monitor_secret.key)'",
-      require => [Package['ceph'],File['/root/monitor_secret.key'],File["${path_to_temp_kerying}"]]
-    }
+      command => "ceph-authtool ${path_to_temp_kerying} --name='mon.' --add-key=$(cat /root/monitor_secret.key)",
+      require => [Package['ceph'],File['/root/monitor_secret.key'],File["${path_to_temp_kerying}"]],
+      unless  => "grep -o '\\[mon.\\]' ${path_to_temp_kerying}",
+  }
     exec { 'ceph-key-admin':
-      command => "ceph-authtool ${path_to_temp_kerying} --create-keyring --name='client.${name}' --add-key='$(cat /root/admin.key'",
-      require => [Package['ceph'],File['/root/admin.key'],Exec['ceph-key-mon'],]
+      command => "ceph-authtool ${path_to_temp_kerying} --name='client.admin' --add-key=$(cat /root/admin.key)  --cap mon 'allow *' --cap osd 'allow *' --cap mds 'allow *'",
+      require => [Package['ceph'],File['/root/admin.key'],Exec['ceph-key-mon'],],
+      unless  => "grep -o '\\[client.admin]' ${path_to_temp_kerying}",
     }
 
 
