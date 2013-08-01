@@ -30,14 +30,12 @@ class ceph::initial (
       command => "ceph-authtool ${path_to_temp_kerying} --name='client.admin' --add-key=$(cat /root/admin.key)  --cap mon 'allow *' --cap osd 'allow *' --cap mds 'allow *'",
       require => [Package['ceph'],File['/root/admin.key'],Exec['ceph-key-mon'],],
       unless  => "grep -o '\\[client.admin]' ${path_to_temp_kerying}",
-    }
+  }
 
-
-# #Will clean up, comes later.
-# exec { "clean-up":
-#   command => "/bin/echo",
-#   #path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-#   #refreshonly => true,
-
+    exec { 'ceph-key-admin':
+      command => "ceph-authtool /etc/ceph/keyring -C --name='client.admin' --add-key=$(cat /root/admin.key)",
+      require => [Package['ceph'],File['/root/admin.key'],Exec['ceph-key-mon'],],
+      unless  => "grep -o '\\[client.admin]' ${path_to_temp_kerying}",
+  }
 
 }
