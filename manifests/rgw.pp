@@ -4,6 +4,8 @@
 
 class ceph::rgw (
   $fsid,
+  $swift_user,
+  $swift_key,
   $rgw_data = '/var/lib/ceph/radosgw'
 ) {
 
@@ -25,17 +27,36 @@ class ceph::rgw (
     require => Package['libapache2-mod-fastcgi'],
   }
 
-   exec { 'a2 dis default':
+   exec { 'a2-dis-default':
      command => 'a2dissite 000-default',
      path    => ['/usr/bin', '/usr/sbin'],
      require => Package['apache2'],
+     onlyif  => "/bin/ls /etc/apache2/sites-enabled/000-default"
    }
   
-   exec { 'a2 en rgw.conf':
+   exec { 'a2-en-rgw.conf':
      command => 'a2ensite rgw.conf',
      path    => ['/usr/bin', '/usr/sbin'],
-     require => file['/etc/apache2/sites-available/rgw.conf'] 
+     require => File['/etc/apache2/sites-available/rgw.conf'],
+     creates => '/etc/apache2/sites-enabled/rgw.conf',
    }
+
+
+   file_line { "apache_listen": 
+      line => "Listen ${::network_eth2_1}:80", 
+      path => "/etc/apache2/ports.conf", 
+      match => "^Listen.*$",
+      ensure => present 
+  }
+
+  exec { 'a2 reload':
+     command => '/etc/init.d/apache2 reload',
+     path    => ['/usr/bin', '/usr/sbin', '/bin'],
+     require => [ Exec['a2-en-rgw.conf'],
+                  Exec['a2-dis-default'],
+                  File_line[apache_listen],],
+   }
+
 
   Package['ceph'] -> Ceph::Key <<| title == 'admin' |>>
 
@@ -91,6 +112,22 @@ exec /usr/bin/radosgw -c /etc/ceph/ceph.conf -n client.radosgw.gateway'
     pattern   => 'radosgw',
 
   }
+  exec { 'add-swift-user':
+    command => "radosgw-admin user create --uid=admin \
+--gen-secret --display-name ${swift_user}",
+    require => Service['radosgw'],
+    unless  => "radosgw-admin user info --uid=admin"
+  }
+
+  exec { 'add-swift-subuser':
+    command => "radosgw-admin subuser create \
+--uid=admin --subuser=${swift_user} \
+--secret=${swift_key} --display-name ${swift_user} \
+--key-type swift --access=full",
+    require => Exec['add-swift-user'] ,
+    unless  => "radosgw-admin user info --uid=admin|grep admin:${swift_user}"
+  }
+  
 
 }
 
