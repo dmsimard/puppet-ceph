@@ -17,10 +17,13 @@ class ceph::initial (
         group  => 'root',
         source => $::monitor_secret,
     }
+    file { "${path_to_temp_kerying}":
+        ensure => file,
+    }
 
     exec { 'ceph-key-mon':
-      command => "ceph-authtool ${path_to_temp_kerying} --name='mon.' --add-key='$(cat /root/monitor_secret)'",
-      require => [Package['ceph'],File['/root/monitor_secret.key'],]
+      command => "ceph-authtool ${path_to_temp_kerying} --name='mon.' --add-key='$(cat /root/monitor_secret.key)'",
+      require => [Package['ceph'],File['/root/monitor_secret.key'],File["${path_to_temp_kerying}"]]
     }
     exec { 'ceph-key-admin':
       command => "ceph-authtool ${path_to_temp_kerying} --create-keyring --name='client.${name}' --add-key='$(cat /root/admin.key'",
