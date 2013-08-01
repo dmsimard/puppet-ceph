@@ -15,6 +15,10 @@
 # [*mon_addr*] The mon's address.
 #   Optional. Defaults to the $ipaddress fact.
 #
+# == ToDo
+# Documenation of the new inc
+#
+#
 # == Dependencies
 #
 # none
@@ -28,7 +32,7 @@
 # Copyright 2012 eNovance <licensing@enovance.com>
 #
 define ceph::mon (
-  $monitor_secret,
+  $temp_kerying,
   $mon_port = 6789,
   $mon_addr = $ipaddress
 ) {
@@ -44,17 +48,17 @@ define ceph::mon (
     mon_port => $mon_port,
   }
 
-  #FIXME: monitor_secret will appear in "ps" output …
-  exec { 'ceph-mon-keyring':
-    command => "ceph-authtool /var/lib/ceph/tmp/keyring.mon.${name} \
---create-keyring \
---name=mon. \
---add-key='${monitor_secret}' \
---cap mon 'allow *'",
-    creates => "/var/lib/ceph/tmp/keyring.mon.${name}",
-    before  => Exec['ceph-mon-mkfs'],
-    require => Package['ceph'],
-  }
+#   #FIXME: monitor_secret will appear in "ps" output …
+#   exec { 'ceph-mon-keyring':
+#     command => "ceph-authtool /var/lib/ceph/tmp/keyring.mon.${name} \
+# --create-keyring \
+# --name=mon. \
+# --add-key='${monitor_secret}' \
+# --cap mon 'allow *'",
+#     creates => "/var/lib/ceph/tmp/keyring.mon.${name}",
+#     before  => Exec['ceph-mon-mkfs'],
+#     require => Package['ceph'],
+#   }
 
   exec { 'ceph-mon-mkfs':
     command => "ceph-mon --mkfs -i ${name} \
@@ -72,20 +76,20 @@ define ceph::mon (
     require  => Exec['ceph-mon-mkfs'],
   }
 
-  exec { 'ceph-admin-key':
-    command => "ceph-authtool /etc/ceph/keyring \
---create-keyring \
---name=client.admin \
---add-key \
-$(ceph --name mon. --keyring ${mon_data_real}/keyring \
-  auth get-or-create-key client.admin \
-    mon 'allow *' \
-    osd 'allow *' \
-    mds allow)",
-    creates => '/etc/ceph/keyring',
-    require => Package['ceph'],
-    onlyif  => "ceph --admin-daemon /var/run/ceph/ceph-mon.${name}.asok \
-mon_status|egrep -v '\"state\": \"(leader|peon)\"'",
-  }
+#   exec { 'ceph-admin-key':
+#     command => "ceph-authtool /etc/ceph/keyring \
+# --create-keyring \
+# --name=client.admin \
+# --add-key \
+# $(ceph --name mon. --keyring ${mon_data_real}/keyring \
+#   auth get-or-create-key client.admin \
+#     mon 'allow *' \
+#     osd 'allow *' \
+#     mds allow)",
+#     creates => '/etc/ceph/keyring',
+#     require => Package['ceph'],
+#     onlyif  => "ceph --admin-daemon /var/run/ceph/ceph-mon.${name}.asok \
+# mon_status|egrep -v '\"state\": \"(leader|peon)\"'",
+#   }
 
 }

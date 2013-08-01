@@ -1,4 +1,5 @@
- #
+  #
+  # Need Doc
 define ceph::key::permissions (
     $keyring_path       = "/var/lib/ceph/tmp/${name}.keyring",
     $mon_permissons     = undef,
