@@ -1,7 +1,7 @@
 # Class: initial
 #
 # Baisc, just to make it work.
-class initial (
+class ceph::initial (
     $path_to_temp_kerying = '/tmp/keyring',
     ){
 
@@ -9,7 +9,7 @@ class initial (
         ensure => file,
         owner  => 'root',
         group  => 'root',
-        source => $::ceph_admin_key,
+        source => $::ceph_admin,
     }
     file { '/root/monitor_secret.key':
         ensure => file,
