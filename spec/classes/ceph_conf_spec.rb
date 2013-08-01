@@ -64,12 +64,13 @@ describe 'ceph::conf' do
     let :params do
       {
         :fsid              => 'qwertyuiop',
-	:pool_default_size => 3,
+        :pool_default_size => 3,
         :auth_type         => 'dummy',
         :journal_size_mb   => 8192,
         :cluster_network   => '10.0.0.0/16',
         :public_network    => '10.1.0.0/16',
         :mon_data          => '/opt/ceph/mon._id',
+        :mon_init_members  => 'a b c',
         :osd_data          => '/opt/ceph/osd._id',
         :osd_journal       => '/opt/ceph/journal/osd._id',
         :mds_data          => '/opt/ceph/mds._id'
@@ -96,6 +97,7 @@ describe 'ceph::conf' do
           '  fsid = qwertyuiop',
           '[mon]',
           '  mon data = /opt/ceph/mon._id', '[osd]',
+          '  mon initial members = a b c',
           '  osd journal size = 8192',
           '  cluster network = 10.0.0.0/16',
           '  public network = 10.1.0.0/16',
