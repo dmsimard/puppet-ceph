@@ -24,8 +24,8 @@
   osd journal = <%= @osd_journal_real %>
   osd mkfs type = xfs
   keyring = <%= @osd_data %>/keyring
-
+<% if @mds_enabled -%>
 [mds]
   mds data = <%= @mds_data %>
   keyring = <%= @mds_data %>/keyring
-
+<% end -%>

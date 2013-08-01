@@ -32,10 +32,9 @@ class ceph::initial (
       unless  => "grep -o '\\[client.admin]' ${path_to_temp_kerying}",
   }
 
-    exec { 'ceph-key-admin':
+    exec { 'ceph-key-admin-keyring':
       command => "ceph-authtool /etc/ceph/keyring -C --name='client.admin' --add-key=$(cat /root/admin.key)",
       require => [Package['ceph'],File['/root/admin.key'],Exec['ceph-key-mon'],],
-      unless  => "grep -o '\\[client.admin]' ${path_to_temp_kerying}",
   }
 
 }
