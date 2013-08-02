@@ -25,7 +25,7 @@ class ceph::rgw (
     path    => ['/usr/bin', '/usr/sbin'],
     creates => '/etc/apache2/mods-enabled/fastcgi.load',
     require => Package['libapache2-mod-fastcgi'],
-  }
+   }
 
    exec { 'a2-dis-default':
      command => 'a2dissite 000-default',
@@ -47,6 +47,11 @@ class ceph::rgw (
       path => "/etc/apache2/ports.conf", 
       match => "^Listen.*$",
       ensure => present 
+   }
+
+  service { 'apache2':
+    ensure    => running,
+    name      => 'apache2'
   }
 
   exec { 'a2 reload':
@@ -54,7 +59,8 @@ class ceph::rgw (
      path    => ['/usr/bin', '/usr/sbin', '/bin'],
      require => [ Exec['a2-en-rgw.conf'],
                   Exec['a2-dis-default'],
-                  File_line[apache_listen],],
+                  File_line['apache_listen'],
+                  Service['apache2'],],
    }
 
 
