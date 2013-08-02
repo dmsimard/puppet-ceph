@@ -108,20 +108,24 @@ osd 'allow rwx'
     content => '#!/bin/sh
 exec /usr/bin/radosgw -c /etc/ceph/ceph.conf -n client.radosgw.gateway'
   }
+  # NOTE(mkoderer): seems hasstatus doesn't work with all puppet versions
+  # service { 'radosgw':
+  #    ensure    => running,
+  #    start     => '/etc/init.d/radosgw start',
+  #    stop      => '/etc/init.d/radosgw stop',
+  #    hasstatus => false,
+  #    pattern   => 'radosgw',
+  #  }
 
-  service { 'radosgw':
-    ensure    => running,
-    provider  => $::ceph::params::service_provider,
-    start     => '/etc/init.d/radosgw start',
-    stop      => '/etc/init.d/radosgw stop',
-    hasstatus => false,
-    pattern   => 'radosgw',
-
+  exec {'start_radosgw':
+    command => '/etc/init.d/radosgw start',
+    unless  => 'ps -ef|grep radosgw|grep -q grep',
   }
+
   exec { 'add-swift-user':
     command => "radosgw-admin user create --uid=admin \
 --gen-secret --display-name ${swift_user}",
-    require => Service['radosgw'],
+    require => Exec['start_radosgw'],
     unless  => "radosgw-admin user info --uid=admin"
   }
 
