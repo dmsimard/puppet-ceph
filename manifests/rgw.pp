@@ -25,7 +25,7 @@ class ceph::rgw (
     path    => ['/usr/bin', '/usr/sbin'],
     creates => '/etc/apache2/mods-enabled/fastcgi.load',
     require => Package['libapache2-mod-fastcgi'],
-  }
+   }
 
    exec { 'a2-dis-default':
      command => 'a2dissite 000-default',
@@ -47,6 +47,11 @@ class ceph::rgw (
       path => "/etc/apache2/ports.conf", 
       match => "^Listen.*$",
       ensure => present 
+   }
+
+  service { 'apache2':
+    ensure    => running,
+    name      => 'apache2'
   }
 
   exec { 'a2 reload':
@@ -54,7 +59,8 @@ class ceph::rgw (
      path    => ['/usr/bin', '/usr/sbin', '/bin'],
      require => [ Exec['a2-en-rgw.conf'],
                   Exec['a2-dis-default'],
-                  File_line[apache_listen],],
+                  File_line['apache_listen'],
+                  Service['apache2'],],
    }
 
 
@@ -102,20 +108,24 @@ osd 'allow rwx'
     content => '#!/bin/sh
 exec /usr/bin/radosgw -c /etc/ceph/ceph.conf -n client.radosgw.gateway'
   }
+  # NOTE(mkoderer): seems hasstatus doesn't work with all puppet versions
+  # service { 'radosgw':
+  #    ensure    => running,
+  #    start     => '/etc/init.d/radosgw start',
+  #    stop      => '/etc/init.d/radosgw stop',
+  #    hasstatus => false,
+  #    pattern   => 'radosgw',
+  #  }
 
-  service { 'radosgw':
-    ensure    => running,
-    provider  => $::ceph::params::service_provider,
-    start     => '/etc/init.d/radosgw start',
-    stop      => '/etc/init.d/radosgw stop',
-    hasstatus => false,
-    pattern   => 'radosgw',
-
+  exec {'start_radosgw':
+    command => '/etc/init.d/radosgw start',
+    unless  => 'ps -ef|grep radosgw|grep -q grep',
   }
+
   exec { 'add-swift-user':
     command => "radosgw-admin user create --uid=admin \
 --gen-secret --display-name ${swift_user}",
-    require => Service['radosgw'],
+    require => Exec['start_radosgw'],
     unless  => "radosgw-admin user info --uid=admin"
   }
 
