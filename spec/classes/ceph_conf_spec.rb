@@ -70,7 +70,7 @@ describe 'ceph::conf' do
         :cluster_network   => '10.0.0.0/16',
         :public_network    => '10.1.0.0/16',
         :mon_data          => '/opt/ceph/mon._id',
-        :mon_init_members  => 'a b c',
+        :mon_init_members  => 'a , b , c',
         :osd_data          => '/opt/ceph/osd._id',
         :osd_journal       => '/opt/ceph/journal/osd._id',
         :mds_data          => '/opt/ceph/mds._id'
@@ -100,7 +100,7 @@ describe 'ceph::conf' do
           '[mon]',
           '  mon data = /opt/ceph/mon._id',
           '[osd]',
-          '  mon initial members = a b c',
+          '  mon initial members = a , b , c',
           '  osd journal size = 8192',
           '  filestore flusher = false',
           '  osd data = /opt/ceph/osd._id',
