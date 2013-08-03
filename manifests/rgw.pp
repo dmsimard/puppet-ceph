@@ -43,7 +43,7 @@ class ceph::rgw (
 
 
    file_line { "apache_listen": 
-      line => "Listen ${::network_eth2_1}:80", 
+      line => "Listen ${::ipaddress_eth2_1}:80", 
       path => "/etc/apache2/ports.conf", 
       match => "^Listen.*$",
       ensure => present 
