@@ -31,6 +31,7 @@ class ceph::conf (
   $mon_init_members  = undef,
   $osd_data          = '/var/lib/ceph/osd/osd.$id',
   $osd_journal       = undef,
+  $mds_enabled       = true,
   $mds_data          = '/var/lib/ceph/mds/mds.$id',
   $rgw_data          = '/var/lib/ceph/radosgw',
   $keyring_path      = undef,
