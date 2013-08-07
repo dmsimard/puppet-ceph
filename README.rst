@@ -63,7 +63,11 @@ Features
 
   • Working OSD ✓
 
-* RadowGW ✓
+* RadosGW ✓
+
+  • Setup service ✓
+
+  • User handling ✓
 
 TODO
 ====
@@ -72,16 +76,20 @@ TODO
 
 * Better OSD device placement possibilities
 
-* Test/finish MDS/RadosGW code
+* Test/finish MDS code
 
 Contributing
 ============
 
 Contributions are welcome, just fork on GitHub and send a pull-request !
 
+* Please try to keep each new feature / change / fix in a separate pull-request, it will greatly help speeding the merge of the pull-requests ;)
+
 * When adding features, don't forget to add unit tests.
 
 * puppet-lint (https://github.com/rodjek/puppet-lint) should not produce too much errors too :)
+
+* Some repo-collaborators might ask you some questions or to update your code. All these questions/requests are open to discussion, but please answer, dont just drop your code & abandon it after !
 
 Using
 =====
@@ -189,9 +197,9 @@ Ceph MONs should be up ::
 
 Launch at least 2 OSDs ::
 
+    vagrant up osd0
     vagrant up osd1
     vagrant up osd2
-    vagrant up osd3
 
 Now login on mon0 (for example) & check ceph health ::
 

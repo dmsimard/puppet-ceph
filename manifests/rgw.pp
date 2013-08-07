@@ -1,68 +1,38 @@
-# Configure a ceph rgw node
+# Configure a ceph radosgw node
+#
+# == Name
+#   This resource's name is the mon's id and must be numeric.
+# == Parameters
+# [*fsid*] The cluster's fsid.
+#   Mandatory. Get one with `uuidgen -r`.
+#
+# [*rgw_data*] The path where the radosgw data should be stored
+#   Optional.
+#
+# == ToDo
 #
 #
+# == Dependencies
+#
+# == Authors
+#
+#  Marc Koderer m.koderer@telekom.de
+#
+# == Copyright
+#
+# Copyright 2013 Deutsche Telekom AG
+#
+
 
 class ceph::rgw (
   $fsid,
-  $swift_user,
-  $swift_key,
-  $rgw_data = '/var/lib/ceph/radosgw'
+  $rgw_data  = '/var/lib/ceph/radosgw',
+  $fcgi_file = '/var/www/s3gw.fcgi'
 ) {
 
   include 'ceph::package'
 
-  ensure_packages( [ 'radosgw','apache2','libapache2-mod-fastcgi', 'ceph-common', 'ceph' ] )
-
-  exec { 'rewrite':
-    command => 'a2enmod rewrite',
-    path    => ['/usr/bin', '/usr/sbin'],
-    creates => '/etc/apache2/mods-enabled/rewrite.load',
-    require => Package['apache2'],
-  }
-
-  exec { 'fastcgi':
-    command => 'a2enmod fastcgi',
-    path    => ['/usr/bin', '/usr/sbin'],
-    creates => '/etc/apache2/mods-enabled/fastcgi.load',
-    require => Package['libapache2-mod-fastcgi'],
-   }
-
-   exec { 'a2-dis-default':
-     command => 'a2dissite 000-default',
-     path    => ['/usr/bin', '/usr/sbin'],
-     require => Package['apache2'],
-     onlyif  => "/bin/ls /etc/apache2/sites-enabled/000-default"
-   }
-  
-   exec { 'a2-en-rgw.conf':
-     command => 'a2ensite rgw.conf',
-     path    => ['/usr/bin', '/usr/sbin'],
-     require => File['/etc/apache2/sites-available/rgw.conf'],
-     creates => '/etc/apache2/sites-enabled/rgw.conf',
-   }
-
-
-   file_line { "apache_listen": 
-      line => "Listen ${::ipaddress_eth2_1}:80", 
-      path => "/etc/apache2/ports.conf", 
-      match => "^Listen.*$",
-      ensure => present 
-   }
-
-  service { 'apache2':
-    ensure    => running,
-    name      => 'apache2'
-  }
-
-  exec { 'a2 reload':
-     command => '/etc/init.d/apache2 reload',
-     path    => ['/usr/bin', '/usr/sbin', '/bin'],
-     require => [ Exec['a2-en-rgw.conf'],
-                  Exec['a2-dis-default'],
-                  File_line['apache_listen'],
-                  Service['apache2'],],
-   }
-
+  ensure_packages( [ 'radosgw', 'ceph-common', 'ceph' ] )
 
   Package['ceph'] -> Ceph::Key <<| title == 'admin' |>>
 
@@ -78,9 +48,7 @@ class ceph::rgw (
     auth_type => $auth_type,
   }
 
-  ceph::conf::rgw {$name:
-    rgw_addr  => $address
-  }
+  ceph::conf::rgw {$name:}
 
   exec { 'ceph-rgw-keyring':
     command => "ceph-authtool /var/lib/ceph/radosgw/keyring.rgw \
@@ -102,12 +70,13 @@ osd 'allow rwx'
     require => Exec['ceph-rgw-keyring'] ,
   }
 
-  file { '/var/www/s3gw.fcgi':
+  file { $fcgi_file:
     owner   => 'root',
     mode    => '0755',
     content => '#!/bin/sh
 exec /usr/bin/radosgw -c /etc/ceph/ceph.conf -n client.radosgw.gateway'
   }
+
   # NOTE(mkoderer): seems hasstatus doesn't work with all puppet versions
   # service { 'radosgw':
   #    ensure    => running,
@@ -122,22 +91,4 @@ exec /usr/bin/radosgw -c /etc/ceph/ceph.conf -n client.radosgw.gateway'
     unless  => 'ps -ef|grep radosgw|grep -q grep',
   }
 
-  exec { 'add-swift-user':
-    command => "radosgw-admin user create --uid=admin \
---gen-secret --display-name ${swift_user}",
-    require => Exec['start_radosgw'],
-    unless  => "radosgw-admin user info --uid=admin"
-  }
-
-  exec { 'add-swift-subuser':
-    command => "radosgw-admin subuser create \
---uid=admin --subuser=${swift_user} \
---secret=${swift_key} --display-name ${swift_user} \
---key-type swift --access=full",
-    require => Exec['add-swift-user'] ,
-    unless  => "radosgw-admin user info --uid=admin|grep admin:${swift_user}"
-  }
-  
-
 }
-
