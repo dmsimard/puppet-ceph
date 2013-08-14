@@ -1,5 +1,5 @@
 define ceph::key (
-  $secret       = undef,
+  $secret,
   $keyring_path = "/var/lib/ceph/tmp/${name}.keyring",
 ) {
 
