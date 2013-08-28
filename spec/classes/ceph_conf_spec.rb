@@ -50,7 +50,7 @@ describe 'ceph::conf' do
           '  osd journal = /var/lib/ceph/osd/osd.$id/journal',
           '  osd mkfs type = xfs',
           '  osd mkfs options xfs = -f',
-          '  osd mount options xfs = rw,noatime',
+          '  osd mount options xfs = rw,noatime,inode64',
           '  keyring = /var/lib/ceph/osd/osd.$id/keyring',
           '[mds]',
           '  mds data = /var/lib/ceph/mds/mds.$id',
