@@ -38,6 +38,14 @@
 #   when creating a pool.
 #   Optional. Integer
 #
+# [*mon_osd_full_ratio*] Percentage of disk space used before 
+#   an OSD considered full 
+#   Optional. Integer e.g. 95, NOTE: ends in config as .95
+#
+# [*mon_osd_nearfull_ratio*] Percentage of disk space used before 
+#   an OSD considered nearfull 
+#   Optional. Float e.g. 90, NOTE: ends in config as .90
+#
 # [*journal_size_mb*] The size of the journal in megabytes.
 #   Optional. Defaults to '4096'.
 #
@@ -100,6 +108,8 @@ class ceph::conf (
   $pool_default_pgp_num    = undef,
   $pool_default_min_size   = undef,
   $pool_default_crush_rule = undef,
+  $mon_osd_full_ratio      = undef,
+  $mon_osd_nearfull_ratio  = undef,
   $journal_size_mb         = 4096,
   $cluster_network         = undef,
   $public_network          = undef,
