@@ -45,19 +45,19 @@ define ceph::pool (
 ){
   include 'ceph::package'
 
-  if create_pool == true { 
+  if $create_pool == true { 
     exec { "ceph-osd-pool-create-${name}":
       command => "ceph osd pool create ${name} ${pg_num} ${pgp_num}",
       onlyif  => "ceph osd lspools | grep ' ${name},'",
-      require => Package['ceph'],
+      require => Package['ceph']
     }
   }
 
-  if delete_pool == true { 
+  if $delete_pool == true { 
     exec { "ceph-osd-pool-delete-${name}":
       command => "ceph osd pool delete ${name} ${name} --yes-i-really-really-mean-it",
-      unless  => "ceph osd lspools | grep ' ${name},'"
-      require => Package['ceph'],
+      unless  => "ceph osd lspools | grep ' ${name},'",
+      require => Package['ceph']
     }
   }
 }
