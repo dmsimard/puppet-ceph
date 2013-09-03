@@ -6,7 +6,7 @@ describe 'ceph::pool' do
 
   it { should include_class('ceph::package') }
 
-  context 'wen create pool' do
+  context 'when create pool' do
     let(:params) { { :create_pool => true, :pg_num => '128', :pgp_num => '128'} }
 
     it do 
@@ -19,7 +19,7 @@ describe 'ceph::pool' do
 
   end
 
-  context 'wen delete pool' do
+  context 'when delete pool' do
     let(:params) { { :delete_pool => true } } 
 
     it do
@@ -32,7 +32,7 @@ describe 'ceph::pool' do
 
   end
 
-  context 'wen increase pool pg_num' do
+  context 'when increase pool pg_num' do
     let(:params) { { :increase_pg_num => true, :pg_num => '256' } } 
 
     it do
@@ -45,7 +45,7 @@ describe 'ceph::pool' do
 
   end
 
-  context 'wen increase pool pgp_num' do
+  context 'when increase pool pgp_num' do
     let(:params) { { :increase_pgp_num => true, :pgp_num => '256' } } 
 
     it do
