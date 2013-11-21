@@ -13,7 +13,10 @@
 #   Mandatory.
 #
 # [*rgw_data*] The path where the radosgw data should be stored
-#   Optional.
+#   Optional. Defaults to '/var/lib/ceph/radosgw'
+#
+# [*fcgi_file*] The path where the fcgi file is found
+#   Optional. Defaults to '/var/www/s3gw.fcgi'.
 #
 # == ToDo
 #
